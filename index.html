@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Future Girlfriend Quiz ❤️</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      color: #333;
+    }
+
+    .quiz-box {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      padding: 35px;
+      border-radius: 25px;
+      text-align: center;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    }
+
+    h1 {
+      color: #ff4f81;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    #question {
+      font-size: 24px;
+      margin-bottom: 25px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+    }
+
+    button {
+      border: none;
+      border-radius: 15px;
+      padding: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .answer {
+      background: #ffe4ec;
+    }
+
+    .answer:hover {
+      background: #ffb6ca;
+      transform: scale(1.02);
+    }
+
+    #next {
+      display: none;
+      width: 100%;
+      margin-top: 25px;
+      background: #ff4f81;
+      color: white;
+    }
+
+    #next:hover,
+    #restart:hover {
+      background: #e63d6c;
+    }
+
+    #textAnswer {
+      width: 100%;
+      min-height: 130px;
+      padding: 15px;
+      border: 2px solid #ffd0dd;
+      border-radius: 15px;
+      font-size: 16px;
+      resize: vertical;
+      outline: none;
+    }
+
+    #submitAnswer {
+      width: 100%;
+      margin-top: 15px;
+      background: #ff4f81;
+      color: white;
+    }
+
+    #result {
+      display: none;
+    }
+
+    .heart {
+      font-size: 60px;
+      animation: beat 1s infinite;
+    }
+
+    @keyframes beat {
+      50% {
+        transform: scale(1.2);
+      }
+    }
+
+    .score {
+      font-size: 38px;
+      color: #ff4f81;
+      font-weight: bold;
+      margin: 20px;
+    }
+
+    .review {
+      background: #fff0f5;
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .review strong {
+      color: #ff4f81;
+    }
+
+    #restart {
+      background: #ff4f81;
+      color: white;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="quiz-box">
+
+    <!-- QUIZ -->
+    <div id="quiz">
+
+      <h1>Future Girlfriend Quiz ❤️</h1>
+
+      <p class="subtitle">
+        Let's see how well you know me... 👀
+      </p>
+
+      <h2 id="question"></h2>
+
+      <div class="answers" id="answers"></div>
+
+      <div id="textContainer" style="display:none;">
+        <textarea
+          id="textAnswer"
+          placeholder="Type your answer here... ❤️"
+        ></textarea>
+
+        <button id="submitAnswer">
+          Submit Answer ❤️
+        </button>
+      </div>
+
+      <button id="next">
+        Next Question →
+      </button>
+
+    </div>
+
+
+    <!-- RESULTS -->
+    <div id="result">
+
+      <div class="heart">❤️</div>
+
+      <h1>Quiz Complete!</h1>
+
+      <div class="score" id="score"></div>
+
+      <p id="message"></p>
+
+      <div class="review">
+        <strong>Her answer to Question 5:</strong>
+
+        <p id="writtenAnswer">
+          No answer provided.
+        </p>
+      </div>
+
+      <button id="restart">
+        Take The Quiz Again 🔄
+      </button>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+const questions = [
+
+  {
+    question: "How much do you like me? ❤️",
+    answers: [
+      "20%",
+      "40%",
+      "60%",
+      "80%",
+      "100% ❤️"
+    ],
+    correct: 4
+  },
+
+  {
+    question: "How likeable do you think I am? 😎",
+    answers: [
+      "50%",
+      "60%",
+      "70%",
+      "80%",
+      "90%",
+      "100% ❤️"
+    ],
+    correct: 5
+  },
+
+  {
+    question: "How much do I talk to you? 😂",
+    answers: [
+      "1 hour",
+      "2 hours",
+      "3 hours",
+      "4 hours",
+      "5 hours",
+      "6 hours",
+      "7 hours",
+      "8 hours"
+    ],
+    correct: 7
+  },
+
+  {
+    question: "Are you thinking about becoming my girlfriend? 👀❤️",
+    answers: [
+      "Yes ❤️",
+      "No"
+    ],
+    correct: 0
+  }
+
+];
+
+
+let currentQuestion = 0;
+let score = 0;
+let writtenAnswer = "";
+
+const questionElement =
+  document.getElementById("question");
+
+const answersElement =
+  document.getElementById("answers");
+
+const nextButton =
+  document.getElementById("next");
+
+const textContainer =
+  document.getElementById("textContainer");
+
+const submitAnswer =
+  document.getElementById("submitAnswer");
+
+
+// LOAD QUESTION
+function loadQuestion() {
+
+  answersElement.innerHTML = "";
+
+  nextButton.style.display = "none";
+
+  textContainer.style.display = "none";
+
+  // QUESTION 5
+  if (currentQuestion === 4) {
+
+    questionElement.textContent =
+      "How long do you think we would be together for, or how long have we been together? ❤️";
+
+    textContainer.style.display = "block";
+
+    return;
+  }
+
+
+  // QUESTIONS 1-4
+  const question = questions[currentQuestion];
+
+  questionElement.textContent =
+    question.question;
+
+
+  question.answers.forEach((answer, index) => {
+
+    const button =
+      document.createElement("button");
+
+    button.textContent = answer;
+
+    button.classList.add("answer");
+
+    button.onclick = () => {
+
+      selectAnswer(index);
+
+    };
+
+    answersElement.appendChild(button);
+
+  });
+
+}
+
+
+// SELECT ANSWER
+function selectAnswer(index) {
+
+  const question =
+    questions[currentQuestion];
+
+  const buttons =
+    document.querySelectorAll(".answer");
+
+
+  buttons.forEach(button => {
+
+    button.disabled = true;
+
+  });
+
+
+  if (index === question.correct) {
+
+    score++;
+
+    buttons[index].style.background =
+      "#9be7a5";
+
+  } else {
+
+    buttons[index].style.background =
+      "#ff9b9b";
+
+    buttons[question.correct].style.background =
+      "#9be7a5";
+
+  }
+
+
+  nextButton.style.display =
+    "block";
+}
+
+
+// NEXT BUTTON
+nextButton.onclick = () => {
+
+  currentQuestion++;
+
+  if (currentQuestion < 5) {
+
+    loadQuestion();
+
+  } else {
+
+    showResult();
+
+  }
+
+};
+
+
+// SUBMIT WRITTEN ANSWER
+submitAnswer.onclick = () => {
+
+  writtenAnswer =
+    document.getElementById("textAnswer").value.trim();
+
+
+  if (writtenAnswer === "") {
+
+    writtenAnswer =
+      "She didn't write an answer.";
+
+  }
+
+
+  showResult();
+
+};
+
+
+// SHOW RESULTS
+function showResult() {
+
+  document.getElementById("quiz")
+    .style.display = "none";
+
+  document.getElementById("result")
+    .style.display = "block";
+
+
+  document.getElementById("score")
+    .textContent =
+    score + " / 4";
+
+
+  let message;
+
+
+  if (score === 4) {
+
+    message =
+      "Okayyy... you know me REALLY well. 👀❤️";
+
+  }
+
+  else if (score >= 2) {
+
+    message =
+      "Not bad! You definitely know me. ❤️";
+
+  }
+
+  else {
+
+    message =
+      "Looks like we need to talk a little more. 😂❤️";
+
+  }
+
+
+  document.getElementById("message")
+    .textContent = message;
+
+
+  document.getElementById("writtenAnswer")
+    .textContent = writtenAnswer;
+
+}
+
+
+// RESTART
+document.getElementById("restart").onclick = () => {
+
+  currentQuestion = 0;
+
+  score = 0;
+
+  writtenAnswer = "";
+
+
+  document.getElementById("result")
+    .style.display = "none";
+
+  document.getElementById("quiz")
+    .style.display = "block";
+
+
+  document.getElementById("textAnswer")
+    .value = "";
+
+
+  loadQuestion();
+
+};
+
+
+// START
+loadQuestion();
+
+</script>
+
+</body>
